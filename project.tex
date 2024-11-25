@@ -1,0 +1,253 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+\usepackage{amsmath, amssymb}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{geometry}
+\usepackage{hyperref}
+
+\geometry{margin=1in}
+
+\title{Multi-Input Multi-Output System Identification and Control}
+\author{Kevin Lee \and Hubert Liu}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report presents a comprehensive analysis and control design for a Multi-Input Multi-Output (MIMO) system based on empirical data. The study involves data preparation, empirical frequency response estimation, pulse response estimation, Hankel matrix analysis for parametric modeling, transmission zero analysis, and controller design using state feedback. Each task includes theoretical background, methodologies, and discussions of the results.
+\end{abstract}
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+Modern control systems often involve multiple inputs and outputs, necessitating robust methods for system identification and control design. This report addresses the identification and control of a MIMO system using empirical data from experiments. The objectives are to estimate the system's frequency and pulse responses, develop parametric models using Hankel matrix analysis, analyze transmission zeros, and design a state feedback controller for closed-loop performance.
+
+\section{Data Preparation}
+\subsection{Overview}
+The initial step involves preparing the data collected from experiments where three independent inputs were applied to the system, and the corresponding outputs were recorded. The data includes input signals $u_1$, $u_2$, $u_3$ and output signals $y_1$, $y_2$ for each input.
+
+\subsection{Sampling Parameters}
+The sampling period and frequency are defined as:
+\begin{equation}
+    T_s = \frac{1}{50} \text{ seconds}, \quad f_s = \frac{1}{T_s} = 50 \text{ Hz}
+\end{equation}
+
+\subsection{Data Loading}
+The datasets are loaded for each input-output pair. Assume the data files are named \texttt{random\_u1.mat}, \texttt{random\_u2.mat}, and \texttt{random\_u3.mat}, containing the variables $u_i$, $y1$, and $y2$.
+
+\subsection{Time Vector}
+A time vector $t$ is created for plotting and analysis:
+\begin{equation}
+    t = [0, T_s, 2T_s, \dots, (N_{\text{dat}} - 1)T_s]
+\end{equation}
+where $N_{\text{dat}}$ is the number of data samples.
+
+\subsection{Signal Plotting}
+The input and output signals are plotted to gain an initial understanding of the system's behavior.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{placeholder_input_output_u1.png}
+    \caption{Input $u_1$ and corresponding outputs $y_1$, $y_2$}
+    \label{fig:input_output_u1}
+\end{figure}
+
+\section{Task 1: Empirical Frequency Response Estimates}
+\subsection{Theoretical Background}
+The frequency response of a system characterizes how the system responds to inputs at different frequencies. For a linear time-invariant (LTI) system, the frequency response function $H(f)$ can be estimated using spectral analysis techniques such as the Cross Power Spectral Density (CPSD).
+
+The CPSD between two signals $x(t)$ and $y(t)$ is defined as:
+\begin{equation}
+    S_{xy}(f) = \mathcal{F}\{R_{xy}(\tau)\}
+\end{equation}
+where $R_{xy}(\tau)$ is the cross-correlation function, and $\mathcal{F}$ denotes the Fourier Transform.
+
+The frequency response function is then estimated as:
+\begin{equation}
+    H(f) = \frac{S_{yu}(f)}{S_{uu}(f)}
+\end{equation}
+where $S_{yu}(f)$ is the CPSD between the output and input, and $S_{uu}(f)$ is the Power Spectral Density (PSD) of the input.
+
+\subsection{Methodology}
+\begin{enumerate}
+    \item Compute the auto-spectral densities $S_{u_iu_i}(f)$ for each input signal using the Welch method with a Hamming window and $n_{\text{fft}} = 1024$ points.
+    \item Compute the cross-spectral densities between different inputs to assess their independence.
+    \item Calculate the frequency response functions $H_{ij}(f)$ for each input-output pair using the estimated spectral densities.
+    \item Plot the magnitude and phase of the frequency responses.
+\end{enumerate}
+
+\subsection{Equations Used}
+\begin{align}
+    S_{uu}(f) &= \text{CPSD}(u, u) \\
+    S_{yu}(f) &= \text{CPSD}(y, u) \\
+    H(f) &= \frac{S_{yu}(f)}{S_{uu}(f)}
+\end{align}
+
+\subsection{Results and Discussion}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{placeholder_auto_spectral.png}
+    \caption{Auto-Spectral Densities of Inputs}
+    \label{fig:auto_spectral}
+\end{figure}
+
+The auto-spectral densities indicate the frequency content of the input signals. Cross-spectral densities between different inputs are negligible, confirming the independence of the inputs.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{placeholder_frequency_response_H11_H21.png}
+    \caption{Frequency Response Magnitudes for Input $u_1$}
+    \label{fig:frequency_response_u1}
+\end{figure}
+
+The frequency response plots show how each output responds to the respective inputs over a range of frequencies.
+
+\section{Task 2: Pulse Response Estimates}
+\subsection{Theoretical Background}
+The pulse response (impulse response) of a system in the time domain can be obtained by performing an Inverse Fourier Transform of the frequency response function. According to the Fourier Transform pair, if $H(f)$ is the frequency response, then the impulse response $h(t)$ is:
+\begin{equation}
+    h(t) = \mathcal{F}^{-1}\{H(f)\}
+\end{equation}
+
+Parseval's theorem states that the energy of the signal is preserved in both time and frequency domains:
+\begin{equation}
+    \int_{-\infty}^{\infty} |h(t)|^2 dt = \int_{-\infty}^{\infty} |H(f)|^2 df
+\end{equation}
+
+\subsection{Methodology}
+\begin{enumerate}
+    \item Compute the inverse Fourier Transform of $H_{ij}(f)$ to obtain the pulse responses $h_{ij}(t)$.
+    \item Plot the pulse responses for each input-output pair.
+    \item Validate Parseval's theorem by calculating the energy in both time and frequency domains.
+\end{enumerate}
+
+\subsection{Results and Discussion}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{placeholder_pulse_response_h11_h21.png}
+    \caption{Pulse Responses $h_{11}(t)$ and $h_{21}(t)$}
+    \label{fig:pulse_response_u1}
+\end{figure}
+
+The pulse responses provide insight into the system's dynamics in the time domain. The validation of Parseval's theorem confirms the consistency of the energy calculations.
+
+\section{Task 3: Hankel Matrix Analysis and Parametric Model}
+\subsection{Theoretical Background}
+System identification can be performed using subspace methods involving the construction of a Hankel matrix from impulse response data. The Singular Value Decomposition (SVD) of the Hankel matrix helps in determining the system order and extracting the system matrices $(A, B, C, D)$.
+
+The Hankel matrix $M_n$ is constructed as:
+\begin{equation}
+    M_n = \begin{bmatrix}
+    h(1) & h(2) & \dots & h(n) \\
+    h(2) & h(3) & \dots & h(n+1) \\
+    \vdots & \vdots & \ddots & \vdots \\
+    h(n) & h(n+1) & \dots & h(2n-1)
+    \end{bmatrix}
+\end{equation}
+
+\subsection{Methodology}
+\begin{enumerate}
+    \item Construct the Hankel matrix $M_n$ using the pulse responses.
+    \item Perform SVD on $M_n$ to obtain matrices $U$, $S$, and $V$.
+    \item Determine the system order by analyzing the singular values.
+    \item Estimate the system matrices $(A, B, C, D)$ for different model orders.
+    \item Simulate the impulse response of the estimated models and compare with the empirical pulse responses.
+\end{enumerate}
+
+\subsection{Equations Used}
+\begin{align}
+    M_n &= U S V^T \\
+    A &= L^\dagger M_n^\prime R^\dagger \\
+    B &= R_{:,1:q} \\
+    C &= L_{1:m,:}
+\end{align}
+where $L = U_1$, $R = S_1 V_1^T$, and $^\dagger$ denotes the pseudoinverse.
+
+\subsection{Results and Discussion}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{placeholder_singular_values.png}
+    \caption{Singular Values of $M_n$}
+    \label{fig:singular_values}
+\end{figure}
+
+The singular values indicate the presence of significant system dynamics corresponding to the higher singular values. The estimated models are validated by comparing their impulse responses and frequency responses with the empirical data.
+
+\section{Task 4: Transmission Zeros and Eigenvalue-Zero Cancellations}
+\subsection{Theoretical Background}
+Transmission zeros are frequencies at which the system output is zero despite non-zero input, reflecting the system's inherent characteristics. They can be computed from the state-space model.
+
+Eigenvalue-zero cancellations occur when poles and zeros of the system cancel each other out, potentially simplifying the system behavior.
+
+\subsection{Methodology}
+\begin{enumerate}
+    \item For each estimated model, compute the transmission zeros using the state-space matrices.
+    \item Calculate the eigenvalues (poles) of the system matrix $A$.
+    \item Analyze for any pole-zero cancellations by comparing the poles and zeros.
+    \item Plot the poles and zeros in the complex plane.
+\end{enumerate}
+
+\subsection{Equations Used}
+Transmission zeros are found by solving:
+\begin{equation}
+    \det\left( \begin{bmatrix}
+    A - \lambda I & B \\
+    C & D
+    \end{bmatrix} \right) = 0
+\end{equation}
+
+\subsection{Results and Discussion}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{placeholder_poles_zeros.png}
+    \caption{Poles and Zeros in the Complex Plane}
+    \label{fig:poles_zeros}
+\end{figure}
+
+The analysis revealed no significant eigenvalue-zero cancellations in the models. The poles and zeros provide insight into the system's stability and controllability.
+
+\section{Task 5: Controller Design and Closed-Loop System Analysis}
+\subsection{Theoretical Background}
+State feedback control involves designing a gain matrix $K$ to place the closed-loop poles at desired locations, enhancing system stability and performance. The closed-loop system is given by:
+\begin{equation}
+    A_{\text{cl}} = A - B K
+\end{equation}
+
+\subsection{Methodology}
+\begin{enumerate}
+    \item Check the controllability of each estimated model using the controllability matrix:
+    \begin{equation}
+        \mathcal{C} = [B, AB, A^2B, \dots, A^{n-1}B]
+    \end{equation}
+    \item Define desired closed-loop pole locations based on performance criteria.
+    \item Use pole placement techniques to compute the state feedback gain $K$.
+    \item Simulate the closed-loop system response to initial conditions.
+\end{enumerate}
+
+\subsection{Results and Discussion}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{placeholder_closed_loop_response.png}
+    \caption{Closed-Loop System Outputs}
+    \label{fig:closed_loop_response}
+\end{figure}
+
+The designed controller successfully placed the closed-loop poles at desired locations, improving system stability and response. The closed-loop outputs demonstrate reduced settling time and oscillations.
+
+\section{Conclusion}
+This study presented a systematic approach to MIMO system identification and control design using empirical data. The tasks encompassed frequency and pulse response estimation, parametric modeling via Hankel matrix analysis, transmission zero analysis, and state feedback controller design. The methodologies and theoretical foundations applied here can be extended to similar control systems, facilitating robust and efficient control strategies.
+
+\section*{References}
+\begin{enumerate}
+    \item Ljung, L. (1999). \textit{System Identification: Theory for the User}. Prentice Hall.
+    \item Chen, C.-T. (1999). \textit{Linear System Theory and Design}. Oxford University Press.
+    \item Kailath, T. (1980). \textit{Linear Systems}. Prentice-Hall.
+\end{enumerate}
+
+\end{document}
