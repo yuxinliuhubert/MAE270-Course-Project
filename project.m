@@ -81,15 +81,18 @@ noverlap = []; % Default overlap
 [Su2u3, ~] = cpsd(u2, u3, window, noverlap, nfft, fs, 'twosided');
 
 
-% Section 2 - Plotting Auto-Spectra:
+%% Section 2 - Plotting Auto-Spectra:
 
 % Plot auto-spectra
-figure;
+figure("Position",[100,200,1500,500]);
+tiledlayout(1,2)
+
+nexttile;
 loglog(f, abs(Suu1), 'r', f, abs(Suu2), 'g', f, abs(Suu3), 'b');
 xlabel('Frequency (Hz)');
 ylabel('Magnitude');
 title('Auto-Spectral Densities of Inputs');
-legend('S_{u_1u_1}', 'S_{u_2u_2}', 'S_{u_3u_3}');
+legend('S_{u_1u_1}', 'S_{u_2u_2}', 'S_{u_3u_3}',Location='southwest');
 axis([0.1 fs/2 1e-5 1e-2]);
 grid on;
 
@@ -97,17 +100,17 @@ grid on;
 % Section 3 - Plotting Cross-Spectra:
 
 % Plot cross-spectra
-figure;
+nexttile
 loglog(f, abs(Su1u2), 'r', f, abs(Su1u3), 'g', f, abs(Su2u3), 'b');
 xlabel('Frequency (Hz)');
 ylabel('Magnitude');
 title('Cross-Spectral Densities between Inputs');
-legend('S_{u_1u_2}', 'S_{u_1u_3}', 'S_{u_2u_3}');
+legend('S_{u_1u_2}', 'S_{u_1u_3}', 'S_{u_2u_3}',Location='southwest');
 axis([0.1 fs/2 1e-5 1e-2]);
 grid on;
 
 
-% Section 4 - Calculating Mean Square Values:
+%% Section 4 - Calculating Mean Square Values:
 
 % Compute the variance (mean square value) of each input signal in the time domain:
 var_u1 = mean(u1.^2);
@@ -119,8 +122,7 @@ mean_Suu1 = mean(abs(Suu1)) * fs;
 mean_Suu2 = mean(abs(Suu2)) * fs;
 mean_Suu3 = mean(abs(Suu3)) * fs;
 
-
-% Section 5 - Estimating Frequency Responses
+%% Section 5 - Estimating Frequency Responses
 
 % For each input-output pair, compute the frequency response:
 
@@ -151,7 +153,9 @@ H23 = Sy2u3 ./ Suu3;
 % Magnitude Plots:
 
 % Magnitude of H11 and H21
-figure;
+figure(Position=[100,50,1500,800]);
+tiledlayout(2,3);
+nexttile;
 loglog(f, abs(H11), 'r', f, abs(H21), 'b');
 xlabel('Frequency (Hz)');
 ylabel('Magnitude');
@@ -161,7 +165,7 @@ axis([0.1 fs/2 1e-3 1e2]);
 grid on;
 
 % Magnitude for H12 and H22
-figure;
+nexttile;
 loglog(f, abs(H12), 'r', f, abs(H22), 'b');
 xlabel('Frequency (Hz)');
 ylabel('Magnitude');
@@ -171,7 +175,7 @@ axis([0.1 fs/2 1e-3 1e2]);
 grid on;
 
 % Magnitude for H13 and H23
-figure;
+nexttile;
 loglog(f, abs(H13), 'r', f, abs(H23), 'b');
 xlabel('Frequency (Hz)');
 ylabel('Magnitude');
@@ -182,7 +186,7 @@ grid on;
 
 % Phase Plots:
 % Phase of H11 and H21
-figure;
+nexttile;
 semilogx(f, angle(H11)*(180/pi), 'r', f, angle(H21)*(180/pi), 'b');
 xlabel('Frequency (Hz)');
 ylabel('Phase (degrees)');
@@ -192,7 +196,7 @@ axis([0.1 fs/2 -200 200]);
 grid on;
 
 % Phase for H12 and H22
-figure;
+nexttile;
 semilogx(f, angle(H12)*(180/pi), 'r', f, angle(H22)*(180/pi), 'b');
 xlabel('Frequency (Hz)');
 ylabel('Phase (degrees)');
@@ -202,7 +206,7 @@ axis([0.1 fs/2 -200 200]);
 grid on;
 
 % Phase for H13 and H23
-figure;
+nexttile;
 semilogx(f, angle(H13)*(180/pi), 'r', f, angle(H23)*(180/pi), 'b');
 xlabel('Frequency (Hz)');
 ylabel('Phase (degrees)');
@@ -234,8 +238,8 @@ t_pulse = (0:n_pulse-1) * ts; % Starts at t=0
 % Section 2 - Plotting Pulse Responses
 
 % Plot h11 and h21
-figure;
-subplot(2,1,1);
+figure(Position=[100,50,1200,800]);
+subplot(2,3,1);
 plot(t_pulse, real(h11), 'r');
 xlabel('Time (s)');
 ylabel('Amplitude');
@@ -243,7 +247,7 @@ title('Pulse Response h_{11}');
 axis([0 3 -2 3]);
 grid on;
 
-subplot(2,1,2);
+subplot(2,3,4);
 plot(t_pulse, real(h21), 'b');
 xlabel('Time (s)');
 ylabel('Amplitude');
@@ -252,8 +256,8 @@ axis([0 3 -2 3]);
 grid on;
 
 % Plot h12 and h22
-figure;
-subplot(2,1,1);
+
+subplot(2,3,2);
 plot(t_pulse, real(h12), 'r');
 xlabel('Time (s)');
 ylabel('Amplitude');
@@ -261,7 +265,7 @@ title('Pulse Response h_{12}');
 axis([0 3 -2 3]);
 grid on;
 
-subplot(2,1,2);
+subplot(2,3,5);
 plot(t_pulse, real(h22), 'b');
 xlabel('Time (s)');
 ylabel('Amplitude');
@@ -270,16 +274,16 @@ axis([0 3 -2 3]);
 grid on;
 
 % Plot h13 and h23
-figure;
-subplot(2,1,1);
+
+subplot(2,3,3);
 plot(t_pulse, real(h13), 'r');
-xlabel('Time (s)');
+xlabel('Time (s)');subplot(2,3,2);
 ylabel('Amplitude');
 title('Pulse Response h_{13}');
 axis([0 3 -2 3]);
 grid on;
 
-subplot(2,1,2);
+subplot(2,3,6);
 plot(t_pulse, real(h23), 'b');
 xlabel('Time (s)');
 ylabel('Amplitude');
