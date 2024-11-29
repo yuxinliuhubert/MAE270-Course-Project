@@ -75,19 +75,31 @@ noverlap = []; % Default overlap
 [Suu2, ~] = cpsd(u2, u2, window, noverlap, nfft, fs, 'twosided');
 [Suu3, ~] = cpsd(u3, u3, window, noverlap, nfft, fs, 'twosided');
 
+Suu1_average = mean(abs(Suu1));
+Suu1_variance = var(abs(Suu1));
+Suu2_average = mean(abs(Suu2));
+Suu2_variance = var(abs(Suu2));
+Suu3_average = mean(abs(Suu3));
+Suu3_variance = var(abs(Suu3));
+
 % Compute cross-spectra
 [Su1u2, ~] = cpsd(u1, u2, window, noverlap, nfft, fs, 'twosided');
 [Su1u3, ~] = cpsd(u1, u3, window, noverlap, nfft, fs, 'twosided');
 [Su2u3, ~] = cpsd(u2, u3, window, noverlap, nfft, fs, 'twosided');
 
-
-%% Section 2 - Plotting Auto-Spectra:
+Su1u2_average = mean(abs(Su1u2));
+Su1u3_average = mean(abs(Su1u3));
+Su2u3_average = mean(abs(Su2u3));
+Su1u2_variance = var(abs(Su1u2));
+Su1u3_variance = var(abs(Su1u3));
+Su2u3_variance = var(abs(Su2u3));
+% Section 2 - Plotting Auto-Spectra:
 
 % Plot auto-spectra
-figure("Position",[100,200,1500,500]);
-tiledlayout(1,2)
-
-nexttile;
+% figure("Position",[100,200,1500,500]);
+figure;
+% tiledlayout(1,2)
+% nexttile;
 loglog(f, abs(Suu1), 'r', f, abs(Suu2), 'g', f, abs(Suu3), 'b');
 xlabel('Frequency (Hz)');
 ylabel('Magnitude');
@@ -98,9 +110,9 @@ grid on;
 
 
 % Section 3 - Plotting Cross-Spectra:
-
 % Plot cross-spectra
-nexttile
+% nexttile
+figure;
 loglog(f, abs(Su1u2), 'r', f, abs(Su1u3), 'g', f, abs(Su2u3), 'b');
 xlabel('Frequency (Hz)');
 ylabel('Magnitude');
@@ -121,6 +133,9 @@ var_u3 = mean(u3.^2);
 mean_Suu1 = mean(abs(Suu1)) * fs;
 mean_Suu2 = mean(abs(Suu2)) * fs;
 mean_Suu3 = mean(abs(Suu3)) * fs;
+
+var_table = array2table([var_u1',var_u2',var_u3']);
+mean_table = array2table([mean_Suu1',mean_Suu2',mean_Suu2']);
 
 %% Section 5 - Estimating Frequency Responses
 
@@ -150,70 +165,77 @@ H23 = Sy2u3 ./ Suu3;
 
 % Section 6 - Plotting Frequency Responses
 
-% Magnitude Plots:
+% Create the figures directory if it doesn't exist
+if ~exist('figures', 'dir')
+    mkdir('figures');
+end
 
-% Magnitude of H11 and H21
-figure(Position=[100,50,1500,800]);
-tiledlayout(2,3);
-nexttile;
+% Magnitude for H11 and H21
+figure;
 loglog(f, abs(H11), 'r', f, abs(H21), 'b');
 xlabel('Frequency (Hz)');
 ylabel('Magnitude');
 title('Frequency Response Magnitudes for Input u_1');
-legend('H_{11}', 'H_{21}');
+legend('H_{11}', 'H_{21}',Location='southwest');
 axis([0.1 fs/2 1e-3 1e2]);
 grid on;
+saveas(gcf, fullfile('figures', 'T1S5_Freq_u_1.png'));
 
 % Magnitude for H12 and H22
-nexttile;
+figure;
 loglog(f, abs(H12), 'r', f, abs(H22), 'b');
 xlabel('Frequency (Hz)');
 ylabel('Magnitude');
 title('Frequency Response Magnitudes for Input u_2');
-legend('H_{12}', 'H_{22}');
+legend('H_{12}', 'H_{22}',Location='southwest');
 axis([0.1 fs/2 1e-3 1e2]);
 grid on;
+saveas(gcf, fullfile('figures', 'T1S5_Freq_u_2.png'));
 
 % Magnitude for H13 and H23
-nexttile;
+figure;
 loglog(f, abs(H13), 'r', f, abs(H23), 'b');
 xlabel('Frequency (Hz)');
 ylabel('Magnitude');
 title('Frequency Response Magnitudes for Input u_3');
-legend('H_{13}', 'H_{23}');
+legend('H_{13}', 'H_{23}',Location='southwest');
 axis([0.1 fs/2 1e-3 1e2]);
 grid on;
+saveas(gcf, fullfile('figures', 'T1S5_Freq_u_3.png'));
 
-% Phase Plots:
 % Phase of H11 and H21
-nexttile;
+figure;
 semilogx(f, angle(H11)*(180/pi), 'r', f, angle(H21)*(180/pi), 'b');
 xlabel('Frequency (Hz)');
 ylabel('Phase (degrees)');
 title('Frequency Response Phases for Input u_1');
-legend('H_{11}', 'H_{21}');
+legend('H_{11}', 'H_{21}',Location='southwest');
 axis([0.1 fs/2 -200 200]);
 grid on;
+saveas(gcf, fullfile('figures', 'T1S5_Phase_u_1.png'));
 
 % Phase for H12 and H22
-nexttile;
+figure;
 semilogx(f, angle(H12)*(180/pi), 'r', f, angle(H22)*(180/pi), 'b');
 xlabel('Frequency (Hz)');
 ylabel('Phase (degrees)');
 title('Frequency Response Phases for Input u_2');
-legend('H_{12}', 'H_{22}');
+legend('H_{12}', 'H_{22}',Location='southwest');
 axis([0.1 fs/2 -200 200]);
 grid on;
+saveas(gcf, fullfile('figures', 'T1S5_Phase_u_2.png'));
 
 % Phase for H13 and H23
-nexttile;
+figure;
 semilogx(f, angle(H13)*(180/pi), 'r', f, angle(H23)*(180/pi), 'b');
 xlabel('Frequency (Hz)');
 ylabel('Phase (degrees)');
 title('Frequency Response Phases for Input u_3');
-legend('H_{13}', 'H_{23}');
+legend('H_{13}', 'H_{23}',Location='southwest');
 axis([0.1 fs/2 -200 200]);
 grid on;
+saveas(gcf, fullfile('figures', 'T1S5_Phase_u_3.png'));
+
 
 
 %% Task 2 - Pulse Response Estimates
@@ -238,8 +260,8 @@ t_pulse = (0:n_pulse-1) * ts; % Starts at t=0
 % Section 2 - Plotting Pulse Responses
 
 % Plot h11 and h21
-figure(Position=[100,50,1200,800]);
-subplot(2,3,1);
+figure;
+subplot(2,1,1);
 plot(t_pulse, real(h11), 'r');
 xlabel('Time (s)');
 ylabel('Amplitude');
@@ -247,17 +269,18 @@ title('Pulse Response h_{11}');
 axis([0 3 -2 3]);
 grid on;
 
-subplot(2,3,4);
+subplot(2,1,2);
 plot(t_pulse, real(h21), 'b');
 xlabel('Time (s)');
 ylabel('Amplitude');
 title('Pulse Response h_{21}');
 axis([0 3 -2 3]);
 grid on;
+saveas(gcf, fullfile('figures/Task2', 'T2S1_pr_h11_h21.png'));
 
 % Plot h12 and h22
-
-subplot(2,3,2);
+figure;
+subplot(2,1,1);
 plot(t_pulse, real(h12), 'r');
 xlabel('Time (s)');
 ylabel('Amplitude');
@@ -265,31 +288,33 @@ title('Pulse Response h_{12}');
 axis([0 3 -2 3]);
 grid on;
 
-subplot(2,3,5);
+subplot(2,1,2);
 plot(t_pulse, real(h22), 'b');
 xlabel('Time (s)');
 ylabel('Amplitude');
 title('Pulse Response h_{22}');
 axis([0 3 -2 3]);
 grid on;
+saveas(gcf, fullfile('figures/Task2', 'T2S1_pr_h12_h22.png'));
 
 % Plot h13 and h23
-
-subplot(2,3,3);
+figure;
+subplot(2,1,1);
 plot(t_pulse, real(h13), 'r');
-xlabel('Time (s)');subplot(2,3,2);
+xlabel('Time (s)');
 ylabel('Amplitude');
 title('Pulse Response h_{13}');
 axis([0 3 -2 3]);
 grid on;
 
-subplot(2,3,6);
+subplot(2,1,2);
 plot(t_pulse, real(h23), 'b');
 xlabel('Time (s)');
 ylabel('Amplitude');
 title('Pulse Response h_{23}');
 axis([0 3 -2 3]);
 grid on;
+saveas(gcf, fullfile('figures/Task2', 'T2S1_pr_h13_h23.png'));
 
 
 % Check maximum imaginary part
@@ -302,7 +327,7 @@ disp(['Maximum imaginary part of h11: ', num2str(max_imag_h11)]);
 % Section 1 - Construct the Hankel Matrix M_n
 
 % Number of samples to use for constructing M_n
-n = 25; % As per the project instructions
+n = 25; 
 K = 2*n - 1; % Number of required pulse response samples
 
 % Ensure that K does not exceed the length of h11
@@ -352,7 +377,7 @@ xlabel('Index');
 ylabel('Singular Value (log scale)');
 title('Singular Values of M_n');
 grid on;
-
+saveas(gcf, fullfile('figures/Task3', 'T3S1_M_singular.png'));
 % Section 3 - Estimate models for different model orders
 
 model_orders = [7, 8, 10, 16];
@@ -428,6 +453,8 @@ for idx = 1:num_models
         disp('Warning: The model is unstable.');
     end
 end
+
+close all
 
 % Section 4 - Simulate the Impulse Response of Each Model and Plot
 
