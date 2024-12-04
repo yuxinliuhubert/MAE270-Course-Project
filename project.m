@@ -464,6 +464,7 @@ num_steps = length(t_pulse);
 % Define input-output pairs for plotting
 input_output_pairs = {'h11', 'h21'; 'h12', 'h22'; 'h13', 'h23'};
 
+graph_positions = [200,100,700,700];
 for idx = 1:num_models
     n_s = model_orders(idx);
     A = A_models{idx};
@@ -508,7 +509,7 @@ for idx = 1:num_models
     end
 
     % Plot Impulse Responses with Subplots
-    figure;
+    figure(Position=graph_positions);
     sgtitle(['Impulse Response Comparisons - Model Order ', num2str(n_s)]);
 
     for pair = 1:size(input_output_pairs,1)
@@ -530,6 +531,8 @@ for idx = 1:num_models
         axis([0 3 -2 3]);
         grid on;
     end
+
+    saveas(gcf, fullfile('figures/Task3', sprintf('T3S2_impulse_model_order_%d.png',n_s)));
 
     % Section 5 - Compute Model Frequency Responses and Compare
 
@@ -557,7 +560,7 @@ for idx = 1:num_models
     end
 
     % Plot Frequency Responses with Subplots - Magnitude
-    figure;
+    figure(Position=graph_positions);
     sgtitle(['Frequency Response Magnitude Comparisons - Model Order ', num2str(n_s)]);
 
     for pair = 1:size(input_output_pairs,1)
@@ -566,7 +569,7 @@ for idx = 1:num_models
         xlabel('Frequency (Hz)');
         ylabel('Magnitude');
         title(['Magnitude ', strrep(upper(input_output_pairs{pair,1}), 'H', 'H_{'), '}']);
-        legend('Estimated', 'Model');
+        legend('Estimated', 'Model',Location='southwest');
         axis([0.1 fs/2 1e-3 1e2]);
         grid on;
 
@@ -575,13 +578,15 @@ for idx = 1:num_models
         xlabel('Frequency (Hz)');
         ylabel('Magnitude');
         title(['Magnitude ', strrep(upper(input_output_pairs{pair,2}), 'H', 'H_{'), '}']);
-        legend('Estimated', 'Model');
+        legend('Estimated', 'Model',Location='southwest');
         axis([0.1 fs/2 1e-3 1e2]);
         grid on;
     end
 
+    saveas(gcf, fullfile('figures/Task3', sprintf('T3S3_freq_model_order_%d.png',n_s)));
+
     % Plot Frequency Responses with Subplots - Phase
-    figure;
+    figure(Position=graph_positions);
     sgtitle(['Frequency Response Phase Comparisons - Model Order ', num2str(n_s)]);
 
     for pair = 1:size(input_output_pairs,1)
@@ -590,7 +595,7 @@ for idx = 1:num_models
         xlabel('Frequency (Hz)');
         ylabel('Phase (degrees)');
         title(['Phase ', strrep(upper(input_output_pairs{pair,1}), 'H', 'H_{'), '}']);
-        legend('Estimated', 'Model');
+        legend('Estimated', 'Model',Location='southwest');
         axis([0.1 fs/2 -200 200]);
         grid on;
 
@@ -599,10 +604,12 @@ for idx = 1:num_models
         xlabel('Frequency (Hz)');
         ylabel('Phase (degrees)');
         title(['Phase ', strrep(upper(input_output_pairs{pair,2}), 'H', 'H_{'), '}']);
-        legend('Estimated', 'Model');
+        legend('Estimated', 'Model',Location='southwest');
         axis([0.1 fs/2 -200 200]);
         grid on;
     end
+
+    saveas(gcf, fullfile('figures/Task3', sprintf('T3S3_phase_model_order_%d.png',n_s)));
 end
 
 
