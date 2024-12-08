@@ -724,11 +724,11 @@ for idx = 1:num_models
 
             % Compute transmission zeros
             % tz = tzero(sys_ch);
-            fprintf("model %d ic %d oc %d\n",model_orders(idx),in_idx,out_idx)
-            tz = compute_transmission_zeros(A,B_ch,C_ch,D_ch);
+            disp(sprintf("model %d ic %d oc %d\n",mod))
+            tz = compute_transmission_zeros(A,B_ch,C_ch,D_ch)
 
             
-            tz = tz(abs(tz) <= 1e3)
+            % tz = tz(abs(tz) <= threshold);
 
             % Initialize tracking for this channel
             canceled_pairs = [];
