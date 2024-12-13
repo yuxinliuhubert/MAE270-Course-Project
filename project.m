@@ -362,6 +362,10 @@ disp(['Maximum imaginary part of h11: ', num2str(max_imag_h11)]);
 
 %% Task 3 - Hankel Matrix Analysis and Parametric Model
 
+function h = compute_h(h11, h12, h13, h21, h22, h23, n)
+    h = [h11(n) h12(n) h13(n); h21(n) h22(n) h23(n)];
+end
+
 % Section 1 - Construct the Hankel Matrix M_n
 
 % Number of samples to use for constructing M_n
