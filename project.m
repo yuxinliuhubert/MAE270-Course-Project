@@ -480,7 +480,7 @@ for idx = 1:num_models
     D_models{idx} = D;
     
     % Check stability
-    eig_A = eig(A)
+    eig_A = eig(A);
     max_abs_eig = max(abs(eig_A));
     fprintf('Model Order %d: Max |eig(A)| = %.4f\n', n_s, max_abs_eig);
     
@@ -779,11 +779,11 @@ for idx = 1:num_models
                 tz = compute_transmission_zeros(A,B_ch,C_ch,D_ch);
 
 
-                tz = tz(abs(tz) <= 1e3)
+                tz = tz(abs(tz) <= 1e3);
 
                 % Initialize tracking for this channel
                 canceled_pairs = [];
-                tp
+           
 
                 % Compare zeros and poles
                 for i = 1:length(tz)
@@ -837,7 +837,7 @@ for idx = 1:num_models
 
                 % Compute transmission zeros for this channel
                 % tz = tzero(sys_ch);
-                tz = compute_transmission_zeros(A,B_ch,C_ch,D_ch)
+                tz = compute_transmission_zeros(A,B_ch,C_ch,D_ch);
 
 
                 %
@@ -884,13 +884,10 @@ end
 
 
 
-%% Task 5 - Controller Design and Closed-Loop System Analysis
+%% Task 5 - Controller Design
 
 % Number of models
 num_models = length(model_orders);
-
-% Desired closed-loop pole locations (example values)
-desired_poles_base = [0.5 + 0.2j, 0.5 - 0.2j, 0.4 + 0.3j, 0.4 - 0.3j, 0.3 + 0.1j, 0.3 - 0.1j, 0.2];
 
 % Preallocate cell arrays for K
 K_models = cell(num_models, 1);
@@ -935,73 +932,3 @@ else
     disp('----------------------------------------');
 
 end
-
-% Adjust desired poles to match system order
-n_poles = n_s;
-if length(desired_poles_base) < n_poles
-    % Add additional poles at 0.1
-    additional_poles = 0.1 * ones(1, n_poles - length(desired_poles_base));
-    poles_cl = [desired_poles_base, additional_poles];
-else
-    poles_cl = desired_poles_base(1:n_poles);
-end
-
-% Compute state feedback gain K
-try
-    K = place(A, B, poles_cl);
-catch ME
-    disp(['Could not place poles for Model Order ', num2str(n_s)]);
-    disp(ME.message);
-    disp('----------------------------------------');
-
-end
-
-% Store K
-K_models{idx} = K;
-
-disp(['State feedback gain K computed for Model Order ', num2str(n_s)]);
-disp('Desired Closed-Loop Poles:');
-disp(poles_cl);
-disp('----------------------------------------');
-
-% Simulate Closed-Loop System
-
-% Simulation parameters
-num_steps = 100; % Number of time steps to simulate
-t_sim = (0:num_steps-1) * ts;
-
-% Closed-loop system matrix
-A_cl = A - B * K;
-
-% Initial state
-x0 = ones(n_s, 1); % Example initial condition
-
-% Initialize state and output vectors
-x_cl = zeros(n_s, num_steps);
-y_cl = zeros(size(C,1), num_steps);
-
-x_cl(:,1) = x0;
-
-for k = 1:num_steps-1
-    % Since r[k] = 0, u[k] = -K x[k]
-    u = -K * x_cl(:,k);
-
-    % State update
-    x_cl(:,k+1) = A_cl * x_cl(:,k);
-
-    % Output
-    y_cl(:,k) = C * x_cl(:,k) + D * u;
-end
-
-% Compute output at the last time step
-u_last = -K * x_cl(:,num_steps);
-y_cl(:,num_steps) = C * x_cl(:,num_steps) + D * u_last;
-
-% Plot the closed-loop outputs
-figure;
-plot(t_sim, y_cl(1,:), 'r', t_sim, y_cl(2,:), 'b');
-xlabel('Time (s)');
-ylabel('Output');
-title(['Closed-Loop System Outputs - Model Order ', num2str(n_s)]);
-legend('y_1', 'y_2');
-grid on;
