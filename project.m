@@ -913,9 +913,11 @@ eig_d_c = [eig_d, eig_c]
 % Get one of the eigenvalues cont of resonators
 resonators_eigs_c = [eig_c(5);eig_c(7)]
 
-fn = abs(resonators_eigs_c)/2/pi
+fn = imag(resonators_eigs_c)/2/pi
+% Get one of the eigenvalues cont of low pass filters
+lowp_eigs_c = [eig_c(1);eig_c(4)]
 
-
+dp = -real(lowp_eigs_c)./sqrt(real(lowp_eigs_c).^2 + imag(lowp_eigs_c).^2)
 
 
 % Check controllability
